@@ -76,24 +76,23 @@ if flag != 0 then
   return;
 end
 
-#input file
-input_line = readlines
-n = input_line.length #n is the number of lines
-
 #data of designed prop(radius,cord,thick,beta,ubody) push to array
 #ubody input in this program, but it doesn't use.
-i = 0
-while i < n do
-  thickper = select_thick_rate(thickrate1,thickrate2,section_change_thickrate,i)
-  single = input_line[i].chomp.split(" ")
-  desiradius.push(single[0].to_f)
-  desicord.push(single[1].to_f)
-  desithick.push(single[1].to_f * radius * thickper)
-  desibeta.push(single[2].to_f)
-  ubody.push(single[3].to_f)
-  #puts single
-  i += 1
+n = 0
+File.open('input.txt') do |file|
+  file.each_line do |labmen|
+    thickper = select_thick_rate(thickrate1,thickrate2,section_change_thickrate,n)
+    single = labmen.chomp.split(' ')
+    printf("%f %f %f %f\n",single[0].to_f,single[1].to_f,single[2].to_f,single[3].to_f)
+    desiradius.push(single[0].to_f)
+    desicord.push(single[1].to_f)
+    desithick.push(single[1].to_f * radius * thickper)
+    desibeta.push(single[2].to_f)
+    ubody.push(single[3].to_f)
+    ++n
+  end
 end
+
 puts "---design status---"
 ptrstatus(desiradius,desicord,desithick,desibeta)
 puts "-------------------"
@@ -147,7 +146,7 @@ while i < (numbersection) do
     j += 1
   end
   thickper = select_thick_rate(thickrate1,thickrate2,section_change_thickrate,i)
-  #Trapezoidal rule
+  #Linear interpolation
   r1 = desiradius[j-1]
   r2 = desiradius[j]
   c1 = desicord[j-1]
@@ -162,6 +161,7 @@ while i < (numbersection) do
   i += 1
 end
 
+#ペラ端。翼弦長・厚さ０、角度は設計データの端。
 cord.push(0)
 thick.push(0)
 beta.push(desibeta[n-1])
@@ -170,12 +170,15 @@ puts "---fixed status---"
 ptrstatus(section,cord,thick,beta)
 puts "-------------------"
 
-#output
+#output to file
 File.open("fixed_data.txt","w"){|file|
   i = 0
   file.puts("radius/chord/thick/beta")
+  puts("radius/chord/thick/beta")
   while i <= numbersection do
-    file.printf("%d   %3.2f   %3.2f   %3.2f\n",section[i],cord[i],thick[i],beta[i])
+    file.printf("%d %.2f %.2f %.2f\n",section[i],cord[i],thick[i],beta[i])
+    #表示用整形表示
+    printf("%5d %6.2f %5.2f %5.2f\n",section[i],cord[i],thick[i],beta[i])
     i += 1
   end
 }
