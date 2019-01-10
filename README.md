@@ -1,0 +1,2 @@
+# PropDataFix
+Xrotorの設計データを制作用に修正するRubyプログラム
